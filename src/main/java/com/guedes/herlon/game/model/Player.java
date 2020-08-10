@@ -19,12 +19,12 @@ public class Player {
         return frames.stream().flatMap(frame -> frame.getPlayerThrowList().stream()).collect(Collectors.toList());
     }
 
-    public static void calculateGameScore(Player player) {
-        List<Frame> playerFrames = player.getFrames();
+    public void calculateGameScore() {
+        List<Frame> playerFrames = this.getFrames();
         calculateFrameScore(playerFrames, playerFrames.size() - 1);
     }
 
-    private static long calculateFrameScore(List<Frame> frames, int frameNumber) {
+    private long calculateFrameScore(List<Frame> frames, int frameNumber) {
         long frameScore = 0;
         if(frameNumber >= 0) {
             frameScore += calculateFrameScore(frames, frameNumber - 1);
@@ -35,7 +35,7 @@ public class Player {
         return frameScore;
     }
 
-    private static long calculateFrameBonus(List<Frame> frames, int frameNumber) {
+    private long calculateFrameBonus(List<Frame> frames, int frameNumber) {
         long bonus = 0L;
         if (frames.get(frameNumber).isStrike()) {
             bonus = calculateBonusUsing(BonusRule.STRIKE, frames, frameNumber);
@@ -45,7 +45,7 @@ public class Player {
         return bonus;
     }
 
-    private static long calculateBonusUsing(BonusRule rule, List<Frame> frames, int frameNumber) {
+    private long calculateBonusUsing(BonusRule rule, List<Frame> frames, int frameNumber) {
         Long bonusValue = 0L;
 
         if(frameNumber < frames.size()-1) {
