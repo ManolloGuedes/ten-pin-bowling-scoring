@@ -23,11 +23,7 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public void readInputFile(String fileName) {
-        createGameUsing(fileName);
-    }
-
-    private void createGameUsing(String fileName) {
+    public Game createGameUsing(String fileName) {
         Game game = new Game(new ArrayList<>());
 
         List<String> lines = FileUtils.getLinesFromFile(fileName);
@@ -38,6 +34,7 @@ public class GameServiceImpl implements GameService {
 
         print(game);
 
+        return game;
     }
 
     private void print(Game game) {

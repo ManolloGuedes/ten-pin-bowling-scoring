@@ -21,7 +21,8 @@ public class GameController implements CommandLineRunner {
     @Override
     public void run(String... args) {
         if(args.length > 0) {
-            gameService.readInputFile(args[0]);
+            log.info(String.format("Reading %s file", args[0]));
+            gameService.createGameUsing(args[0]);
         } else {
             log.error("A file path was expected as input to the program's execution");
         }

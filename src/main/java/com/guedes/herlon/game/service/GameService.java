@@ -1,5 +1,7 @@
 package com.guedes.herlon.game.service;
 
+import com.guedes.herlon.game.model.Game;
+
 public interface GameService {
-    void readInputFile(String fileName);
+    Game createGameUsing(String fileName);
 }
