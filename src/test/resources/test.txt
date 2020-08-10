@@ -1,0 +1,7 @@
+Jeff	10
+John	3
+John	7
+Jeff	F
+Jeff	F
+John	6
+John	0
