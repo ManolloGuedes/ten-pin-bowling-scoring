@@ -1,6 +1,7 @@
 package com.guedes.herlon.game.service;
 
 import com.guedes.herlon.game.exceptions.TooMuchFramesException;
+import com.guedes.herlon.game.exceptions.TooMuchThrowsException;
 import com.guedes.herlon.game.general.Constants;
 import com.guedes.herlon.game.general.enums.BonusRule;
 import com.guedes.herlon.game.model.*;
@@ -44,7 +45,7 @@ public class GameServiceImpl implements GameService {
             try {
                 registerPlayerThrow(game, playerName, line);
             } catch (Exception e) {
-                log.error("Error while reading file line from file " + fileName, e);
+                log.error("Error on createGameUsing execution. Error while reading file line from file " + fileName, e);
             }
         });
 
@@ -82,7 +83,7 @@ public class GameServiceImpl implements GameService {
         });
     }
 
-    private void registerPlayerThrow(Game game, String[] playerName, String fileLine) {
+    private void registerPlayerThrow(Game game, String[] playerName, String fileLine) throws RuntimeException {
         String[] throwDetails = fileLine.split(Constants.FILE_LINE_ELEMENT_SPLITTER);
 
         if(!playerName[0].equals(throwDetails[0])) {
@@ -92,7 +93,7 @@ public class GameServiceImpl implements GameService {
         registerThrow(throwDetails[1]);
     }
 
-    private void registerFrame(Game game, String[] playerName, String[] throwDetails) {
+    private void registerFrame(Game game, String[] playerName, String[] throwDetails) throws TooMuchFramesException {
         playerName[0] = throwDetails[0];
 
         playerAtomicReference.set(game.getPlayers()
@@ -102,7 +103,7 @@ public class GameServiceImpl implements GameService {
                 .orElseGet(() -> new PlayerImpl(playerName[0], new ArrayList<>())));
 
         if(playerAtomicReference.get().getFrames().size() >= Constants.MAX_NUMBER_OF_FRAMES) {
-            String errorMessage = String.format("%s exceeded the maximum number of frames.",
+            String errorMessage = String.format("Error on registerFrame execution. %s exceeded the maximum number of frames.",
                     playerName[0]);
 
             log.error(errorMessage);
@@ -117,7 +118,7 @@ public class GameServiceImpl implements GameService {
         }
     }
 
-    private void registerThrow(String throwResult) {
+    private void registerThrow(String throwResult) throws TooMuchThrowsException {
         PlayerThrow playerThrow;
         boolean isFault = !NumberUtils.isCreatable(throwResult);
         if(isFault) {
@@ -126,7 +127,16 @@ public class GameServiceImpl implements GameService {
             playerThrow = getThrowUsing(throwResult);
         }
 
-        frameAtomicReference.get().getPlayerThrowList().add(playerThrow);
+        List<PlayerThrow> playerThrows = frameAtomicReference.get().getPlayerThrowList();
+        List<Frame> playerFrames = playerAtomicReference.get().getFrames();
+        if ((playerFrames.size() < Constants.MAX_NUMBER_OF_FRAMES && playerThrows.size() >= Constants.NON_LAST_FRAME_MAX_NUMBER_THROWS)
+        || playerFrames.size() == Constants.MAX_NUMBER_OF_FRAMES && playerThrows.size() >= Constants.LAST_FRAME_MAX_NUMBER_THROWS) {
+            String errorMessage = String.format("Error on registerThrow execution. Number of throws in one frame exceeded by player %s on the Frame #%d",
+                                                playerAtomicReference.get().getName(), playerFrames.size());
+            throw new TooMuchThrowsException(errorMessage);
+        }
+
+        playerThrows.add(playerThrow);
     }
 
     private PlayerThrow getThrowUsing(String throwResult) {

@@ -8,4 +8,6 @@ public abstract class Constants {
     public static final int MAX_NUMBER_OF_PINS = 10;
     public static final long FAULT_NUMBER_KNOCKED_DOWN_PINS = 0L;
     public static final int MAX_NUMBER_OF_FRAMES = 10;
+    public static final int NON_LAST_FRAME_MAX_NUMBER_THROWS = 2;
+    public static final int LAST_FRAME_MAX_NUMBER_THROWS = 3;
 }
