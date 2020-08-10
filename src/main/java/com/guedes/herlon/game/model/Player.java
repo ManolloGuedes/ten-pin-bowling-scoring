@@ -16,7 +16,7 @@ public class Player {
     private String name;
     private List<Frame> frames;
 
-    public static List<PlayerThrow> getThrows(List<Frame> frames) {
+    public List<PlayerThrow> getThrows(List<Frame> frames) {
         return frames.stream().flatMap(frame -> frame.getPlayerThrowList().stream()).collect(Collectors.toList());
     }
 
