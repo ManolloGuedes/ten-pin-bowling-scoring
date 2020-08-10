@@ -4,7 +4,7 @@ import com.guedes.herlon.game.model.Frame;
 import com.guedes.herlon.game.model.Game;
 import com.guedes.herlon.game.model.Player;
 import com.guedes.herlon.game.model.PlayerThrow;
-import com.guedes.herlon.game.utils.FileUtils;
+import com.guedes.herlon.game.general.utils.FileUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 

@@ -1,4 +1,4 @@
-package com.guedes.herlon.game.utils;
+package com.guedes.herlon.game.general.utils;
 
 import java.io.IOException;
 import java.nio.file.Files;

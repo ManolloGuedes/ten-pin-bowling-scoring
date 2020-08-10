@@ -1,4 +1,4 @@
-package com.guedes.herlon.game.model.enums;
+package com.guedes.herlon.game.general.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
