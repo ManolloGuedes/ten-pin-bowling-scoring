@@ -1,5 +1,8 @@
 package com.guedes.herlon.game.service;
 
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
 import com.guedes.herlon.game.exceptions.TooMuchFramesException;
 import com.guedes.herlon.game.exceptions.TooMuchThrowsException;
 import com.guedes.herlon.game.general.Constants;
@@ -16,10 +19,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @Slf4j
@@ -49,8 +52,6 @@ public class GameServiceImpl implements GameService {
             }
         });
 
-        print(game);
-
         return game;
     }
 
@@ -67,25 +68,35 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public void printFormattedScoreOf(Game game) {
-        //TODO method
-    }
-
-    private void print(Game game) {
-        System.out.println(game.getPlayers().size());
-
+        StringBuilder stringBuilder = new StringBuilder();
         game.getPlayers().forEach(player -> {
-            System.out.println();
-            System.out.println();
-            System.out.println();
-            System.out.println("-------------------");
-            System.out.println(player.getName());
-            System.out.println("-------------------");
-            player.getFrames().forEach(frame -> {
-                System.out.println("Frame: ".concat(frame.getNumber().toString()));
-                frame.getPlayerThrowList().forEach(playerThrow -> System.out.println(playerThrow.getFault() ? Constants.FAULT_CHARACTER : playerThrow.getStrike() ? Constants.STRIKE_CHARACTER :
-                        playerThrow.getSpare() ? Constants.SPARE_CHARACTER : playerThrow.getKnockedDownPins().toString()));
-            });
+            stringBuilder
+                    .append(player.getName())
+                    .append("\n")
+                    .append("Pinfalls\t")
+                    .append(this.getThrows(player.getFrames())
+                            .stream()
+                            .map(playerThrow -> {
+                                if(playerThrow.getStrike()) {
+                                    return "\t".concat(Constants.STRIKE_CHARACTER);
+                                } else if (playerThrow.getSpare()) {
+                                    return Constants.SPARE_CHARACTER;
+                                } else if (playerThrow.getFault()) {
+                                    return Constants.FAULT_CHARACTER;
+                                }
+                                return playerThrow.getKnockedDownPins().toString();
+                            })
+                            .collect(Collectors.joining("\t"))
+                    ).append("\n")
+                    .append("Score\t\t")
+                    .append(player.getFrames()
+                            .stream()
+                            .map(frame -> frame.getScore().toString())
+                            .collect(Collectors.joining("\t\t"))
+                    ).append("\n");
         });
+
+        System.out.println(stringBuilder.toString());
     }
 
     private void registerPlayerThrow(Game game, String[] playerName, String fileLine) throws RuntimeException {
