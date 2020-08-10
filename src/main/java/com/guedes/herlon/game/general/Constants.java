@@ -1,0 +1,11 @@
+package com.guedes.herlon.game.general;
+
+public abstract class Constants {
+    public static final String FILE_LINE_ELEMENT_SPLITTER = "\t";
+    public static final String SPARE_CHARACTER = "/";
+    public static final String FAULT_CHARACTER = "F";
+    public static final String STRIKE_CHARACTER = "X";
+    public static final int MAX_NUMBER_OF_PINS = 10;
+    public static final long FAULT_NUMBER_KNOCKED_DOWN_PINS = 0L;
+    public static final int MAX_NUMBER_OF_FRAMES = 10;
+}

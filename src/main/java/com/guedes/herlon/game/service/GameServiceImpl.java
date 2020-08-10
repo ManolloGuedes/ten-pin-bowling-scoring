@@ -1,5 +1,7 @@
 package com.guedes.herlon.game.service;
 
+import com.guedes.herlon.game.exceptions.TooMuchFramesException;
+import com.guedes.herlon.game.general.Constants;
 import com.guedes.herlon.game.general.enums.BonusRule;
 import com.guedes.herlon.game.model.*;
 import com.guedes.herlon.game.general.utils.FileUtils;
@@ -9,6 +11,7 @@ import com.guedes.herlon.game.model.interfaces.Player;
 import com.guedes.herlon.game.model.interfaces.PlayerThrow;
 import com.guedes.herlon.game.service.interfaces.GameService;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +21,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class GameServiceImpl implements GameService {
+
     private final AtomicReference<Frame> frameAtomicReference;
     private final AtomicReference<Player> playerAtomicReference;
 
@@ -35,7 +40,13 @@ public class GameServiceImpl implements GameService {
 
         final String[] playerName = {""};
 
-        lines.forEach(line -> registerPlayerThrow(game, playerName, line));
+        lines.forEach(line -> {
+            try {
+                registerPlayerThrow(game, playerName, line);
+            } catch (Exception e) {
+                log.error("Error while reading file line from file " + fileName, e);
+            }
+        });
 
         print(game);
 
@@ -45,6 +56,12 @@ public class GameServiceImpl implements GameService {
     @Override
     public void calculateFinalResultOf(Game game) {
         game.getPlayers().forEach(this::calculateGameScore);
+    }
+
+    @Override
+    public void calculateGameScore(Player player) {
+        List<Frame> playerFrames = player.getFrames();
+        calculateFrameScore(playerFrames, playerFrames.size() - 1);
     }
 
     private void print(Game game) {
@@ -59,33 +76,45 @@ public class GameServiceImpl implements GameService {
             System.out.println("-------------------");
             player.getFrames().forEach(frame -> {
                 System.out.println("Frame: ".concat(frame.getNumber().toString()));
-                frame.getPlayerThrowList().forEach(playerThrow -> System.out.println(playerThrow.getFault() ? "F" : playerThrow.getStrike() ? "X" :
-                        playerThrow.getSpare() ? "/" : playerThrow.getKnockedDownPins().toString()));
+                frame.getPlayerThrowList().forEach(playerThrow -> System.out.println(playerThrow.getFault() ? Constants.FAULT_CHARACTER : playerThrow.getStrike() ? Constants.STRIKE_CHARACTER :
+                        playerThrow.getSpare() ? Constants.SPARE_CHARACTER : playerThrow.getKnockedDownPins().toString()));
             });
         });
     }
 
     private void registerPlayerThrow(Game game, String[] playerName, String fileLine) {
-        String[] throwDetails = fileLine.split("\t");
+        String[] throwDetails = fileLine.split(Constants.FILE_LINE_ELEMENT_SPLITTER);
 
         if(!playerName[0].equals(throwDetails[0])) {
-            playerName[0] = throwDetails[0];
-
-            playerAtomicReference.set(game.getPlayers()
-                    .stream()
-                    .filter(actualPlayer -> actualPlayer.getName().equals(playerName[0]))
-                    .findFirst()
-                    .orElseGet(() -> new PlayerImpl(playerName[0], new ArrayList<>())));
-
-            frameAtomicReference.set(new FrameImpl(new ArrayList<>(), (long) playerAtomicReference.get().getFrames().size()));
-            playerAtomicReference.get().getFrames().add(frameAtomicReference.get());
-
-            if(!game.hasPlayer(playerName[0])) {
-                game.getPlayers().add(playerAtomicReference.get());
-            }
+            registerFrame(game, playerName, throwDetails);
         }
 
         registerThrow(throwDetails[1]);
+    }
+
+    private void registerFrame(Game game, String[] playerName, String[] throwDetails) {
+        playerName[0] = throwDetails[0];
+
+        playerAtomicReference.set(game.getPlayers()
+                .stream()
+                .filter(actualPlayer -> actualPlayer.getName().equals(playerName[0]))
+                .findFirst()
+                .orElseGet(() -> new PlayerImpl(playerName[0], new ArrayList<>())));
+
+        if(playerAtomicReference.get().getFrames().size() >= Constants.MAX_NUMBER_OF_FRAMES) {
+            String errorMessage = String.format("%s exceeded the maximum number of frames.",
+                    playerName[0]);
+
+            log.error(errorMessage);
+            throw new TooMuchFramesException(errorMessage);
+        }
+
+        frameAtomicReference.set(new FrameImpl(new ArrayList<>(), (long) playerAtomicReference.get().getFrames().size()));
+        playerAtomicReference.get().getFrames().add(frameAtomicReference.get());
+
+        if(!game.hasPlayer(playerName[0])) {
+            game.getPlayers().add(playerAtomicReference.get());
+        }
     }
 
     private void registerThrow(String throwResult) {
@@ -110,7 +139,7 @@ public class GameServiceImpl implements GameService {
         playerThrow = PlayerThrowImpl.builder()
                                 .knockedDownPins(knockedDownPins)
                                 .strike(strike)
-                                .spare(!strike && frameAtomicReference.get().getTotalKnockedDownPins() + knockedDownPins == 10)
+                                .spare(!strike && frameAtomicReference.get().getTotalKnockedDownPins() + knockedDownPins == Constants.MAX_NUMBER_OF_PINS)
                                 .fault(false)
                                 .build();
         return playerThrow;
@@ -119,17 +148,12 @@ public class GameServiceImpl implements GameService {
     private PlayerThrow getThrowFault() {
         PlayerThrow playerThrow;
         playerThrow = PlayerThrowImpl.builder()
-                                .knockedDownPins(0L)
+                                .knockedDownPins(Constants.FAULT_NUMBER_KNOCKED_DOWN_PINS)
                                 .strike(false)
                                 .spare(false)
                                 .fault(true)
                                 .build();
         return playerThrow;
-    }
-
-    public void calculateGameScore(Player player) {
-        List<Frame> playerFrames = player.getFrames();
-        calculateFrameScore(playerFrames, playerFrames.size() - 1);
     }
 
     private List<PlayerThrow> getThrows(List<Frame> frames) {
