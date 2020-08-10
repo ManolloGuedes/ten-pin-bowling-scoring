@@ -55,8 +55,8 @@ public class GameServiceImpl implements GameService {
         });
     }
 
-    private void registerPlayerThrow(Game game, String[] playerName, String line) {
-        String[] throwDetails = line.split("\t");
+    private void registerPlayerThrow(Game game, String[] playerName, String fileLine) {
+        String[] throwDetails = fileLine.split("\t");
 
         if(!playerName[0].equals(throwDetails[0])) {
             playerName[0] = throwDetails[0];
@@ -75,24 +75,24 @@ public class GameServiceImpl implements GameService {
             }
         }
 
-        registerThrow(throwDetails);
+        registerThrow(throwDetails[1]);
     }
 
-    private void registerThrow(String[] throwDetails) {
+    private void registerThrow(String throwResult) {
         PlayerThrow playerThrow;
-        boolean isFault = !NumberUtils.isCreatable(throwDetails[1]);
+        boolean isFault = !NumberUtils.isCreatable(throwResult);
         if(isFault) {
             playerThrow = getThrowFault();
         } else {
-            playerThrow = getThrowUsing(throwDetails[1]);
+            playerThrow = getThrowUsing(throwResult);
         }
 
         frameAtomicReference.get().getPlayerThrowList().add(playerThrow);
     }
 
-    private PlayerThrow getThrowUsing(String throwDetail) {
+    private PlayerThrow getThrowUsing(String throwResult) {
         PlayerThrow playerThrow;
-        Long knockedDownPins = Long.parseLong(throwDetail);
+        Long knockedDownPins = Long.parseLong(throwResult);
         boolean strike = false;
         if(knockedDownPins == 10) {
             strike = frameAtomicReference.get().getPlayerThrowList().isEmpty();
