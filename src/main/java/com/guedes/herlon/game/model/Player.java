@@ -1,6 +1,7 @@
 package com.guedes.herlon.game.model;
 
 import com.guedes.herlon.game.general.enums.BonusRule;
+import com.guedes.herlon.game.model.interfaces.Frame;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;

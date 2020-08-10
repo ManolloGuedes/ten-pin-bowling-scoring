@@ -1,10 +1,10 @@
 package com.guedes.herlon.game.service;
 
-import com.guedes.herlon.game.model.Frame;
-import com.guedes.herlon.game.model.Game;
-import com.guedes.herlon.game.model.Player;
-import com.guedes.herlon.game.model.PlayerThrow;
+import com.guedes.herlon.game.model.*;
 import com.guedes.herlon.game.general.utils.FileUtils;
+import com.guedes.herlon.game.model.interfaces.Frame;
+import com.guedes.herlon.game.model.interfaces.Game;
+import com.guedes.herlon.game.service.interfaces.GameService;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +24,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public Game createGameUsing(String fileName) {
-        Game game = new Game(new ArrayList<>());
+        Game game = new GameImpl(new ArrayList<>());
 
         List<String> lines = FileUtils.getLinesFromFile(fileName);
 
@@ -72,7 +72,7 @@ public class GameServiceImpl implements GameService {
                     .findFirst()
                     .orElseGet(() -> new Player(playerName[0], new ArrayList<>())));
 
-            frameAtomicReference.set(new Frame(new ArrayList<>(), (long) playerAtomicReference.get().getFrames().size()));
+            frameAtomicReference.set(new FrameImpl(new ArrayList<>(), (long) playerAtomicReference.get().getFrames().size()));
             playerAtomicReference.get().getFrames().add(frameAtomicReference.get());
 
             if(!game.hasPlayer(playerName[0])) {

@@ -1,6 +1,6 @@
 package com.guedes.herlon.game.controller;
 
-import com.guedes.herlon.game.service.GameService;
+import com.guedes.herlon.game.service.interfaces.GameService;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
