@@ -45,8 +45,8 @@ class GameServiceImplTest {
         List<Frame> johnFrames = getFramesUsing("John");
 
         assertAll(
-                () -> assertEquals(2, jeffFrames.size()),
-                () -> assertEquals(2, johnFrames.size())
+                () -> assertEquals(10, jeffFrames.size()),
+                () -> assertEquals(10, johnFrames.size())
         );
     }
 
@@ -86,6 +86,19 @@ class GameServiceImplTest {
                 () -> assertEquals(10, johnFrames.get(0).getPlayerThrowList().stream().mapToLong(PlayerThrow::getKnockedDownPins).sum()),
                 () -> assertTrue(johnFrames.get(0).getPlayerThrowList().stream().anyMatch(PlayerThrow::getSpare)),
                 () -> assertFalse(johnFrames.get(0).getPlayerThrowList().stream().anyMatch(PlayerThrow::getStrike))
+        );
+    }
+
+    @Test
+    void calculateFinalResult() {
+        gameService.calculateFinalResultOf(gameTest);
+
+        List<Frame> jeffFrames = getFramesUsing("Jeff");
+        List<Frame> johnFrames = getFramesUsing("John");
+
+        assertAll(
+                () -> assertEquals(167, jeffFrames.get(jeffFrames.size()-1).getScore()),
+                () -> assertEquals(151, johnFrames.get(jeffFrames.size()-1).getScore())
         );
     }
 
