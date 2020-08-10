@@ -65,6 +65,11 @@ public class GameServiceImpl implements GameService {
         calculateFrameScore(playerFrames, playerFrames.size() - 1);
     }
 
+    @Override
+    public void printFormattedScoreOf(Game game) {
+        //TODO method
+    }
+
     private void print(Game game) {
         System.out.println(game.getPlayers().size());
 

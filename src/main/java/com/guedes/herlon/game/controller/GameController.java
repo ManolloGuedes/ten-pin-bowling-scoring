@@ -1,5 +1,6 @@
 package com.guedes.herlon.game.controller;
 
+import com.guedes.herlon.game.model.interfaces.Game;
 import com.guedes.herlon.game.service.interfaces.GameService;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,9 @@ public class GameController implements CommandLineRunner {
     public void run(String... args) {
         if(args.length > 0) {
             log.info(String.format("Reading %s file", args[0]));
-            gameService.createGameUsing(args[0]);
+            Game game = gameService.createGameUsing(args[0]);
+            gameService.calculateFinalResultOf(game);
+            gameService.printFormattedScoreOf(game);
         } else {
             log.error("A file path was expected as input to the program's execution");
         }
