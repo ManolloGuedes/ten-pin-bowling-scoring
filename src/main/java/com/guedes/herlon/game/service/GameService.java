@@ -4,4 +4,5 @@ import com.guedes.herlon.game.model.Game;
 
 public interface GameService {
     Game createGameUsing(String fileName);
+    void calculateFinalResultOf(Game game);
 }

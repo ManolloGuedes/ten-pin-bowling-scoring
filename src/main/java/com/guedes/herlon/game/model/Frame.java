@@ -22,4 +22,11 @@ public class Frame {
                 .sum();
     }
 
+    public boolean isStrike() {
+        return playerThrowList.stream().anyMatch(PlayerThrow::getStrike);
+    }
+
+    public boolean isSpare() {
+        return playerThrowList.stream().anyMatch(PlayerThrow::getSpare);
+    }
 }

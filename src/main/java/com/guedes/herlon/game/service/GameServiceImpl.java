@@ -32,15 +32,14 @@ public class GameServiceImpl implements GameService {
 
         lines.forEach(line -> registerPlayerThrow(game, playerName, line));
 
-        calculateFinalResultOf(game);
-
         print(game);
 
         return game;
     }
 
-    private void calculateFinalResultOf(Game game) {
-        //TODO result game will be calculated here
+    @Override
+    public void calculateFinalResultOf(Game game) {
+        game.getPlayers().forEach(Player::calculateGameScore);
     }
 
     private void print(Game game) {
