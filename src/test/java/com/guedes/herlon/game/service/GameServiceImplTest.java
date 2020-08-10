@@ -1,9 +1,9 @@
 package com.guedes.herlon.game.service;
 
+import com.guedes.herlon.game.model.PlayerImpl;
 import com.guedes.herlon.game.model.interfaces.Frame;
 import com.guedes.herlon.game.model.interfaces.Game;
-import com.guedes.herlon.game.model.Player;
-import com.guedes.herlon.game.model.PlayerThrow;
+import com.guedes.herlon.game.model.interfaces.PlayerThrow;
 import com.guedes.herlon.game.service.interfaces.GameService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -108,7 +108,7 @@ class GameServiceImplTest {
                 .stream()
                 .filter(player -> player.getName().equals(playerName))
                 .findFirst()
-                .orElse(new Player("", new ArrayList<>()))
+                .orElse(new PlayerImpl("", new ArrayList<>()))
                 .getFrames();
     }
 }

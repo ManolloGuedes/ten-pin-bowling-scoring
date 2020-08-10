@@ -4,6 +4,8 @@ import com.guedes.herlon.game.model.*;
 import com.guedes.herlon.game.general.utils.FileUtils;
 import com.guedes.herlon.game.model.interfaces.Frame;
 import com.guedes.herlon.game.model.interfaces.Game;
+import com.guedes.herlon.game.model.interfaces.Player;
+import com.guedes.herlon.game.model.interfaces.PlayerThrow;
 import com.guedes.herlon.game.service.interfaces.GameService;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
@@ -70,7 +72,7 @@ public class GameServiceImpl implements GameService {
                     .stream()
                     .filter(actualPlayer -> actualPlayer.getName().equals(playerName[0]))
                     .findFirst()
-                    .orElseGet(() -> new Player(playerName[0], new ArrayList<>())));
+                    .orElseGet(() -> new PlayerImpl(playerName[0], new ArrayList<>())));
 
             frameAtomicReference.set(new FrameImpl(new ArrayList<>(), (long) playerAtomicReference.get().getFrames().size()));
             playerAtomicReference.get().getFrames().add(frameAtomicReference.get());
@@ -102,7 +104,7 @@ public class GameServiceImpl implements GameService {
         if(knockedDownPins == 10) {
             strike = frameAtomicReference.get().getPlayerThrowList().isEmpty();
         }
-        playerThrow = PlayerThrow.builder()
+        playerThrow = PlayerThrowImpl.builder()
                                 .knockedDownPins(knockedDownPins)
                                 .strike(strike)
                                 .spare(!strike && frameAtomicReference.get().getTotalKnockedDownPins() + knockedDownPins == 10)
@@ -113,7 +115,7 @@ public class GameServiceImpl implements GameService {
 
     private PlayerThrow getThrowFault() {
         PlayerThrow playerThrow;
-        playerThrow = PlayerThrow.builder()
+        playerThrow = PlayerThrowImpl.builder()
                                 .knockedDownPins(0L)
                                 .strike(false)
                                 .spare(false)

@@ -2,6 +2,8 @@ package com.guedes.herlon.game.model;
 
 import com.guedes.herlon.game.general.enums.BonusRule;
 import com.guedes.herlon.game.model.interfaces.Frame;
+import com.guedes.herlon.game.model.interfaces.Player;
+import com.guedes.herlon.game.model.interfaces.PlayerThrow;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
@@ -11,15 +13,17 @@ import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
-public class Player {
+public class PlayerImpl implements Player {
 
     private String name;
     private List<Frame> frames;
 
+    @Override
     public List<PlayerThrow> getThrows(List<Frame> frames) {
         return frames.stream().flatMap(frame -> frame.getPlayerThrowList().stream()).collect(Collectors.toList());
     }
 
+    @Override
     public void calculateGameScore() {
         List<Frame> playerFrames = this.getFrames();
         calculateFrameScore(playerFrames, playerFrames.size() - 1);

@@ -1,6 +1,7 @@
 package com.guedes.herlon.game.model;
 
 import com.guedes.herlon.game.model.interfaces.Frame;
+import com.guedes.herlon.game.model.interfaces.PlayerThrow;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
