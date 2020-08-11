@@ -27,12 +27,12 @@ import java.util.stream.Collectors;
 @Slf4j
 public class GameServiceImpl implements GameService {
 
-    private final AtomicReference<Frame> frameAtomicReference;
-    private final AtomicReference<Player> playerAtomicReference;
+    private final AtomicReference<Frame> refereceToActualFrame;
+    private final AtomicReference<Player> referenceToActualPlayer;
 
     public GameServiceImpl() {
-        frameAtomicReference = new AtomicReference<>();
-        playerAtomicReference = new AtomicReference<>();
+        refereceToActualFrame = new AtomicReference<>();
+        referenceToActualPlayer = new AtomicReference<>();
     }
 
     @Override
@@ -115,13 +115,13 @@ public class GameServiceImpl implements GameService {
     private void registerFrame(Game game, String[] playerName, String[] throwDetails) throws TooMuchFramesException {
         playerName[0] = throwDetails[0];
 
-        playerAtomicReference.set(game.getPlayers()
+        referenceToActualPlayer.set(game.getPlayers()
                 .stream()
                 .filter(actualPlayer -> actualPlayer.getName().equals(playerName[0]))
                 .findFirst()
                 .orElseGet(() -> new PlayerImpl(playerName[0], new ArrayList<>())));
 
-        if(playerAtomicReference.get().getFrames().size() >= Constants.MAX_NUMBER_OF_FRAMES) {
+        if(referenceToActualPlayer.get().getFrames().size() >= Constants.MAX_NUMBER_OF_FRAMES) {
             String errorMessage = String.format("Error on registerFrame execution. %s exceeded the maximum number of frames.",
                     playerName[0]);
 
@@ -129,11 +129,11 @@ public class GameServiceImpl implements GameService {
             throw new TooMuchFramesException(errorMessage);
         }
 
-        frameAtomicReference.set(new FrameImpl(new ArrayList<>(), (long) playerAtomicReference.get().getFrames().size()));
-        playerAtomicReference.get().getFrames().add(frameAtomicReference.get());
+        refereceToActualFrame.set(new FrameImpl(new ArrayList<>(), (long) referenceToActualPlayer.get().getFrames().size()));
+        referenceToActualPlayer.get().getFrames().add(refereceToActualFrame.get());
 
         if(!game.hasPlayer(playerName[0])) {
-            game.getPlayers().add(playerAtomicReference.get());
+            game.getPlayers().add(referenceToActualPlayer.get());
         }
     }
 
@@ -144,17 +144,17 @@ public class GameServiceImpl implements GameService {
             playerThrow = PlayerThrowFactory.createFaultInstance(Constants.FAULT_NUMBER_KNOCKED_DOWN_PINS);
         } else {
             long knockedDownPins = Long.parseLong(throwResult);
-            boolean strike = knockedDownPins == Constants.MAX_NUMBER_OF_PINS && frameAtomicReference.get().getPlayerThrowList().isEmpty();
-            boolean spare = !strike && frameAtomicReference.get().getTotalKnockedDownPins() + knockedDownPins == Constants.MAX_NUMBER_OF_PINS;
+            boolean strike = knockedDownPins == Constants.MAX_NUMBER_OF_PINS && refereceToActualFrame.get().getPlayerThrowList().isEmpty();
+            boolean spare = !strike && refereceToActualFrame.get().getTotalKnockedDownPins() + knockedDownPins == Constants.MAX_NUMBER_OF_PINS;
             playerThrow = PlayerThrowFactory.createCommonInstance(knockedDownPins, strike, spare);
         }
 
-        List<PlayerThrow> playerThrows = frameAtomicReference.get().getPlayerThrowList();
-        List<Frame> playerFrames = playerAtomicReference.get().getFrames();
+        List<PlayerThrow> playerThrows = refereceToActualFrame.get().getPlayerThrowList();
+        List<Frame> playerFrames = referenceToActualPlayer.get().getFrames();
         if ((playerFrames.size() < Constants.MAX_NUMBER_OF_FRAMES && playerThrows.size() >= Constants.NON_LAST_FRAME_MAX_NUMBER_THROWS)
         || playerFrames.size() == Constants.MAX_NUMBER_OF_FRAMES && playerThrows.size() >= Constants.LAST_FRAME_MAX_NUMBER_THROWS) {
             String errorMessage = String.format("Error on registerThrow execution. Number of throws in one frame exceeded by player %s on the Frame #%d",
-                                                playerAtomicReference.get().getName(), playerFrames.size());
+                                                referenceToActualPlayer.get().getName(), playerFrames.size());
             throw new TooMuchThrowsException(errorMessage);
         }
 
