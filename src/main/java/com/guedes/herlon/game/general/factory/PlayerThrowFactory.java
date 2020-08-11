@@ -1,4 +1,4 @@
-package com.guedes.herlon.game.model.factory;
+package com.guedes.herlon.game.general.factory;
 
 import com.guedes.herlon.game.model.PlayerThrowImpl;
 import com.guedes.herlon.game.model.interfaces.PlayerThrow;
