@@ -1,8 +1,5 @@
 package com.guedes.herlon.game.service;
 
-import com.github.mustachejava.DefaultMustacheFactory;
-import com.github.mustachejava.Mustache;
-import com.github.mustachejava.MustacheFactory;
 import com.guedes.herlon.game.exceptions.TooMuchFramesException;
 import com.guedes.herlon.game.exceptions.TooMuchThrowsException;
 import com.guedes.herlon.game.general.Constants;
