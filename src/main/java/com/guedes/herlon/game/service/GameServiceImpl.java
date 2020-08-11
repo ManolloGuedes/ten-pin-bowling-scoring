@@ -4,8 +4,11 @@ import com.guedes.herlon.game.exceptions.TooMuchFramesException;
 import com.guedes.herlon.game.exceptions.TooMuchThrowsException;
 import com.guedes.herlon.game.general.Constants;
 import com.guedes.herlon.game.general.enums.BonusRule;
-import com.guedes.herlon.game.model.*;
 import com.guedes.herlon.game.general.utils.FileUtils;
+import com.guedes.herlon.game.model.FrameImpl;
+import com.guedes.herlon.game.model.GameImpl;
+import com.guedes.herlon.game.model.PlayerImpl;
+import com.guedes.herlon.game.model.factory.PlayerThrowFactory;
 import com.guedes.herlon.game.model.interfaces.Frame;
 import com.guedes.herlon.game.model.interfaces.Game;
 import com.guedes.herlon.game.model.interfaces.Player;
@@ -16,10 +19,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 @Slf4j
@@ -135,9 +138,12 @@ public class GameServiceImpl implements GameService {
         PlayerThrow playerThrow;
         boolean isFault = !NumberUtils.isCreatable(throwResult);
         if(isFault) {
-            playerThrow = getThrowFault();
+            playerThrow = PlayerThrowFactory.createFaultInstance(Constants.FAULT_NUMBER_KNOCKED_DOWN_PINS);
         } else {
-            playerThrow = getThrowUsing(throwResult);
+            long knockedDownPins = Long.parseLong(throwResult);
+            boolean strike = knockedDownPins == Constants.MAX_NUMBER_OF_PINS && frameAtomicReference.get().getPlayerThrowList().isEmpty();
+            boolean spare = !strike && frameAtomicReference.get().getTotalKnockedDownPins() + knockedDownPins == Constants.MAX_NUMBER_OF_PINS;
+            playerThrow = PlayerThrowFactory.createCommonInstance(knockedDownPins, strike, spare);
         }
 
         List<PlayerThrow> playerThrows = frameAtomicReference.get().getPlayerThrowList();
@@ -150,33 +156,6 @@ public class GameServiceImpl implements GameService {
         }
 
         playerThrows.add(playerThrow);
-    }
-
-    private PlayerThrow getThrowUsing(String throwResult) {
-        PlayerThrow playerThrow;
-        Long knockedDownPins = Long.parseLong(throwResult);
-        boolean strike = false;
-        if(knockedDownPins == 10) {
-            strike = frameAtomicReference.get().getPlayerThrowList().isEmpty();
-        }
-        playerThrow = PlayerThrowImpl.builder()
-                                .knockedDownPins(knockedDownPins)
-                                .strike(strike)
-                                .spare(!strike && frameAtomicReference.get().getTotalKnockedDownPins() + knockedDownPins == Constants.MAX_NUMBER_OF_PINS)
-                                .fault(false)
-                                .build();
-        return playerThrow;
-    }
-
-    private PlayerThrow getThrowFault() {
-        PlayerThrow playerThrow;
-        playerThrow = PlayerThrowImpl.builder()
-                                .knockedDownPins(Constants.FAULT_NUMBER_KNOCKED_DOWN_PINS)
-                                .strike(false)
-                                .spare(false)
-                                .fault(true)
-                                .build();
-        return playerThrow;
     }
 
     private List<PlayerThrow> getThrows(List<Frame> frames) {
