@@ -3,18 +3,17 @@ package com.guedes.herlon.game.service;
 import com.guedes.herlon.game.exceptions.TooMuchFramesException;
 import com.guedes.herlon.game.exceptions.TooMuchThrowsException;
 import com.guedes.herlon.game.general.Constants;
-import com.guedes.herlon.game.general.enums.BonusRule;
+import com.guedes.herlon.game.general.factory.PlayerThrowFactory;
 import com.guedes.herlon.game.general.utils.FileUtils;
 import com.guedes.herlon.game.model.FrameImpl;
 import com.guedes.herlon.game.model.GameImpl;
 import com.guedes.herlon.game.model.PlayerImpl;
-import com.guedes.herlon.game.general.factory.PlayerThrowFactory;
 import com.guedes.herlon.game.model.interfaces.Frame;
 import com.guedes.herlon.game.model.interfaces.Game;
 import com.guedes.herlon.game.model.interfaces.Player;
 import com.guedes.herlon.game.model.interfaces.PlayerThrow;
+import com.guedes.herlon.game.service.interfaces.FrameService;
 import com.guedes.herlon.game.service.interfaces.GameService;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
@@ -63,18 +62,22 @@ public class GameServiceImpl implements GameService {
     @Override
     public void calculateGameScore(Player player) {
         List<Frame> playerFrames = player.getFrames();
-        calculateFrameScore(playerFrames, playerFrames.size() - 1);
+
+        FrameService frameService = new FrameServiceImpl();
+        frameService.calculateFrameScore(playerFrames, playerFrames.size() - 1);
     }
 
     @Override
     public void printFormattedScoreOf(Game game) {
         StringBuilder stringBuilder = new StringBuilder();
+
+        FrameService frameService = new FrameServiceImpl();
         game.getPlayers().forEach(player -> {
             stringBuilder
                     .append(player.getName())
                     .append("\n")
                     .append("Pinfalls\t")
-                    .append(this.getThrows(player.getFrames())
+                    .append(frameService.getThrowsFrom(player.getFrames())
                             .stream()
                             .map(playerThrow -> {
                                 if(playerThrow.getStrike()) {
@@ -158,49 +161,4 @@ public class GameServiceImpl implements GameService {
         playerThrows.add(playerThrow);
     }
 
-    private List<PlayerThrow> getThrows(List<Frame> frames) {
-        return frames.stream().flatMap(frame -> frame.getPlayerThrowList().stream()).collect(Collectors.toList());
-    }
-
-    private long calculateFrameScore(List<Frame> frames, int frameNumber) {
-        long frameScore = 0;
-        if(frameNumber >= 0) {
-            frameScore += calculateFrameScore(frames, frameNumber - 1);
-            frameScore += frameNumber < frames.size() - 1 ? calculateFrameBonus(frames, frameNumber) : 0L;
-            frameScore += frames.get(frameNumber).getTotalKnockedDownPins();
-            frames.get(frameNumber).setScore(frameScore);
-        }
-        return frameScore;
-    }
-
-    private long calculateFrameBonus(List<Frame> frames, int frameNumber) {
-        long bonus = 0L;
-        if (frames.get(frameNumber).isStrike()) {
-            bonus = calculateBonusUsing(BonusRule.STRIKE, frames, frameNumber);
-        } else if (frames.get(frameNumber).isSpare()) {
-            bonus = calculateBonusUsing(BonusRule.SPARE, frames, frameNumber);
-        }
-        return bonus;
-    }
-
-    private long calculateBonusUsing(BonusRule rule, List<Frame> frames, int frameNumber) {
-        Long bonusValue = 0L;
-
-        if(frameNumber < frames.size()-1) {
-            List<PlayerThrow> playerThrows = getThrows(frames);
-
-            @NonNull List<PlayerThrow> playerThrowOnFrame = frames.get(frameNumber).getPlayerThrowList();
-            int indexOfLastThrow = playerThrows.indexOf(playerThrowOnFrame.get(playerThrowOnFrame.size()-1));
-
-            int amountThrowsToUse = Math.min(playerThrows.size() - indexOfLastThrow, rule.getThrowsToUse());
-
-            List<PlayerThrow> playerThrowsToUseAsBonuses = playerThrows.subList(indexOfLastThrow + 1, indexOfLastThrow + 1 + amountThrowsToUse);
-
-            bonusValue += playerThrowsToUseAsBonuses.stream().mapToLong(PlayerThrow::getKnockedDownPins).sum();
-        } else {
-            bonusValue += frames.get(frameNumber).getTotalKnockedDownPins();
-        }
-
-        return bonusValue;
-    }
 }
