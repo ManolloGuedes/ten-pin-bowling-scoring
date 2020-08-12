@@ -27,12 +27,12 @@ import java.util.stream.Collectors;
 @Slf4j
 public class GameServiceImpl implements GameService {
 
-    private final AtomicReference<Frame> refereceToActualFrame;
-    private final AtomicReference<Player> referenceToActualPlayer;
+    private final AtomicReference<Frame> refereceToCurrentFrame;
+    private final AtomicReference<Player> referenceToCurrentPlayer;
 
     public GameServiceImpl() {
-        refereceToActualFrame = new AtomicReference<>();
-        referenceToActualPlayer = new AtomicReference<>();
+        refereceToCurrentFrame = new AtomicReference<>();
+        referenceToCurrentPlayer = new AtomicReference<>();
     }
 
     @Override
@@ -45,7 +45,7 @@ public class GameServiceImpl implements GameService {
 
         lines.forEach(line -> {
             try {
-                registerPlayerThrow(game, playerName, line);
+                registerPlayerThrowByFileLine(game, playerName, line);
             } catch (Exception e) {
                 log.error("Error on createGameUsing execution. Error while reading file line from file " + fileName, e);
             }
@@ -102,26 +102,21 @@ public class GameServiceImpl implements GameService {
         System.out.println(stringBuilder.toString());
     }
 
-    private void registerPlayerThrow(Game game, String[] playerName, String fileLine) throws RuntimeException {
+    private void registerPlayerThrowByFileLine(Game game, String[] playerName, String fileLine) throws RuntimeException {
         String[] throwDetails = fileLine.split(Constants.FILE_LINE_ELEMENT_SPLITTER);
 
-        if(!playerName[0].equals(throwDetails[0])) {
+        boolean needsToChangeCurrentPlayer = !playerName[0].equals(throwDetails[0]);
+        if(needsToChangeCurrentPlayer) {
+            playerName[0] = throwDetails[0];
+            changeCurrentPlayer(game, playerName);
             registerFrame(game, playerName, throwDetails);
         }
 
-        registerThrow(throwDetails[1]);
+        registerThrowOnCurrentFrame(throwDetails[1]);
     }
 
     private void registerFrame(Game game, String[] playerName, String[] throwDetails) throws TooMuchFramesException {
-        playerName[0] = throwDetails[0];
-
-        referenceToActualPlayer.set(game.getPlayers()
-                .stream()
-                .filter(actualPlayer -> actualPlayer.getName().equals(playerName[0]))
-                .findFirst()
-                .orElseGet(() -> new PlayerImpl(playerName[0], new ArrayList<>())));
-
-        if(referenceToActualPlayer.get().getFrames().size() >= Constants.MAX_NUMBER_OF_FRAMES) {
+        if(referenceToCurrentPlayer.get().getFrames().size() >= Constants.MAX_NUMBER_OF_FRAMES) {
             String errorMessage = String.format("Error on registerFrame execution. %s exceeded the maximum number of frames.",
                     playerName[0]);
 
@@ -129,32 +124,40 @@ public class GameServiceImpl implements GameService {
             throw new TooMuchFramesException(errorMessage);
         }
 
-        refereceToActualFrame.set(new FrameImpl(new ArrayList<>(), (long) referenceToActualPlayer.get().getFrames().size()));
-        referenceToActualPlayer.get().getFrames().add(refereceToActualFrame.get());
+        refereceToCurrentFrame.set(new FrameImpl(new ArrayList<>(), (long) referenceToCurrentPlayer.get().getFrames().size()));
+        referenceToCurrentPlayer.get().getFrames().add(refereceToCurrentFrame.get());
 
         if(!game.hasPlayer(playerName[0])) {
-            game.getPlayers().add(referenceToActualPlayer.get());
+            game.getPlayers().add(referenceToCurrentPlayer.get());
         }
     }
 
-    private void registerThrow(String throwResult) throws TooMuchThrowsException {
+    private void changeCurrentPlayer(Game game, String[] playerName) {
+        referenceToCurrentPlayer.set(game.getPlayers()
+                .stream()
+                .filter(currentPlayer -> currentPlayer.getName().equals(playerName[0]))
+                .findFirst()
+                .orElseGet(() -> new PlayerImpl(playerName[0], new ArrayList<>())));
+    }
+
+    private void registerThrowOnCurrentFrame(String throwResult) throws TooMuchThrowsException {
         PlayerThrow playerThrow;
         boolean isFault = !NumberUtils.isCreatable(throwResult);
         if(isFault) {
             playerThrow = PlayerThrowFactory.createFaultInstance(Constants.FAULT_NUMBER_KNOCKED_DOWN_PINS);
         } else {
             long knockedDownPins = Long.parseLong(throwResult);
-            boolean strike = knockedDownPins == Constants.MAX_NUMBER_OF_PINS && refereceToActualFrame.get().getPlayerThrowList().isEmpty();
-            boolean spare = !strike && refereceToActualFrame.get().getTotalKnockedDownPins() + knockedDownPins == Constants.MAX_NUMBER_OF_PINS;
+            boolean strike = knockedDownPins == Constants.MAX_NUMBER_OF_PINS && refereceToCurrentFrame.get().getPlayerThrowList().isEmpty();
+            boolean spare = !strike && refereceToCurrentFrame.get().getTotalKnockedDownPins() + knockedDownPins == Constants.MAX_NUMBER_OF_PINS;
             playerThrow = PlayerThrowFactory.createCommonInstance(knockedDownPins, strike, spare);
         }
 
-        List<PlayerThrow> playerThrows = refereceToActualFrame.get().getPlayerThrowList();
-        List<Frame> playerFrames = referenceToActualPlayer.get().getFrames();
+        List<PlayerThrow> playerThrows = refereceToCurrentFrame.get().getPlayerThrowList();
+        List<Frame> playerFrames = referenceToCurrentPlayer.get().getFrames();
         if ((playerFrames.size() < Constants.MAX_NUMBER_OF_FRAMES && playerThrows.size() >= Constants.NON_LAST_FRAME_MAX_NUMBER_THROWS)
         || playerFrames.size() == Constants.MAX_NUMBER_OF_FRAMES && playerThrows.size() >= Constants.LAST_FRAME_MAX_NUMBER_THROWS) {
-            String errorMessage = String.format("Error on registerThrow execution. Number of throws in one frame exceeded by player %s on the Frame #%d",
-                                                referenceToActualPlayer.get().getName(), playerFrames.size());
+            String errorMessage = String.format("Error on registerThrowOnCurrentFrame execution. Number of throws in one frame exceeded by player %s on the Frame #%d",
+                                                referenceToCurrentPlayer.get().getName(), playerFrames.size());
             throw new TooMuchThrowsException(errorMessage);
         }
 
