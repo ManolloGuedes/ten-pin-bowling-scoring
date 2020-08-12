@@ -4,7 +4,6 @@ import com.guedes.herlon.game.exceptions.TooMuchFramesException;
 import com.guedes.herlon.game.exceptions.TooMuchThrowsException;
 import com.guedes.herlon.game.general.Constants;
 import com.guedes.herlon.game.general.factory.PlayerThrowFactory;
-import com.guedes.herlon.game.general.utils.FileUtils;
 import com.guedes.herlon.game.model.FrameImpl;
 import com.guedes.herlon.game.model.GameImpl;
 import com.guedes.herlon.game.model.PlayerImpl;
@@ -19,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -114,28 +112,44 @@ public class GameServiceImpl implements GameService {
     private void registerThrowOnCurrentFrame(String throwResult) throws TooMuchThrowsException {
         List<PlayerThrow> playerThrows = referenceToCurrentFrame.get().getPlayerThrowList();
         List<Frame> playerFrames = referenceToCurrentPlayer.get().getFrames();
-        boolean canThrowInCurrentFrame = (playerFrames.size() < Constants.MAX_NUMBER_OF_FRAMES &&
-                                        playerThrows.size() >= Constants.NON_LAST_FRAME_MAX_NUMBER_THROWS)
-                                        || (playerFrames.size() == Constants.MAX_NUMBER_OF_FRAMES
-                                        && playerThrows.size() >= Constants.LAST_FRAME_MAX_NUMBER_THROWS);
-        if (canThrowInCurrentFrame) {
-            String errorMessage = String.format("Error on registerThrowOnCurrentFrame execution. Number of throws in one frame exceeded by player %s on the Frame #%d",
-                    referenceToCurrentPlayer.get().getName(), playerFrames.size());
-            throw new TooMuchThrowsException(errorMessage);
-        }
 
         PlayerThrow playerThrow;
         boolean isFault = !NumberUtils.isCreatable(throwResult);
         if(isFault) {
             playerThrow = PlayerThrowFactory.createFaultInstance(Constants.FAULT_NUMBER_KNOCKED_DOWN_PINS);
         } else {
+            validIfCanCreateThrow(playerThrows, playerFrames, throwResult);
+
             long knockedDownPins = Long.parseLong(throwResult);
             boolean strike = knockedDownPins == Constants.MAX_NUMBER_OF_PINS && referenceToCurrentFrame.get().getPlayerThrowList().isEmpty();
-            boolean spare = !strike && referenceToCurrentFrame.get().getTotalKnockedDownPins() + knockedDownPins == Constants.MAX_NUMBER_OF_PINS;
+            long totalKnockedDownPins = referenceToCurrentFrame.get().getTotalKnockedDownPins() + knockedDownPins;
+            boolean spare = !strike && totalKnockedDownPins == Constants.MAX_NUMBER_OF_PINS;
             playerThrow = PlayerThrowFactory.createCommonInstance(knockedDownPins, strike, spare);
         }
 
         playerThrows.add(playerThrow);
+    }
+
+    private void validIfCanCreateThrow(List<PlayerThrow> playerThrows, List<Frame> playerFrames, String throwResult) throws TooMuchThrowsException {
+        boolean canThrowInCurrentFrame = !((playerFrames.size() < Constants.MAX_NUMBER_OF_FRAMES &&
+                                        playerThrows.size() >= Constants.NON_LAST_FRAME_MAX_NUMBER_THROWS)
+                                        || (playerFrames.size() == Constants.MAX_NUMBER_OF_FRAMES
+                                        && playerThrows.size() >= Constants.LAST_FRAME_MAX_NUMBER_THROWS));
+        if (!canThrowInCurrentFrame) {
+            String errorMessage = String.format("Error on registerThrowOnCurrentFrame execution. Number of throws in one frame exceeded by player %s on the Frame #%d",
+                    referenceToCurrentPlayer.get().getName(), playerFrames.size());
+            throw new TooMuchThrowsException(errorMessage);
+        }
+
+        long knockedDownPins = Long.parseLong(throwResult);
+        long totalKnockedDownPins = referenceToCurrentFrame.get().getTotalKnockedDownPins() + knockedDownPins;
+
+        boolean totalKnockedDownExceedsLimit = playerFrames.size() < Constants.MAX_NUMBER_OF_FRAMES && totalKnockedDownPins > Constants.MAX_NUMBER_OF_PINS;
+        if (totalKnockedDownExceedsLimit) {
+            String errorMessage = String.format("Error on registerThrowOnCurrentFrame execution. Number of knocked down pins by player %s on the Frame #%d exceeded the limit",
+                    referenceToCurrentPlayer.get().getName(), playerFrames.size());
+            throw new TooMuchThrowsException(errorMessage);
+        }
     }
 
 }
