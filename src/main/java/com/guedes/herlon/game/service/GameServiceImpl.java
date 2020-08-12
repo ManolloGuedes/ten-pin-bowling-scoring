@@ -125,7 +125,9 @@ public class GameServiceImpl implements GameService {
             validIfCanCreateThrow(playerThrows, playerFrames, throwResult);
 
             long knockedDownPins = Long.parseLong(throwResult);
-            boolean strike = knockedDownPins == Constants.MAX_NUMBER_OF_PINS && referenceToCurrentFrame.get().getPlayerThrowList().isEmpty();
+            boolean isLastFrame = playerFrames.size() == Constants.MAX_NUMBER_OF_FRAMES;
+            boolean strike = knockedDownPins == Constants.MAX_NUMBER_OF_PINS &&
+                    (isLastFrame || referenceToCurrentFrame.get().getPlayerThrowList().isEmpty());
             long totalKnockedDownPins = referenceToCurrentFrame.get().getTotalKnockedDownPins() + knockedDownPins;
             boolean spare = !strike && totalKnockedDownPins == Constants.MAX_NUMBER_OF_PINS;
             playerThrow = PlayerThrowFactory.createCommonInstance(knockedDownPins, strike, spare);
