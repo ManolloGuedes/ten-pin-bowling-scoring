@@ -65,41 +65,6 @@ public class GameServiceImpl implements GameService {
         frameService.calculateFrameScore(playerFrames, playerFrames.size() - 1);
     }
 
-    @Override
-    public void printFormattedScoreOf(Game game) {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        FrameService frameService = new FrameServiceImpl();
-        game.getPlayers().forEach(player -> {
-            stringBuilder
-                    .append(player.getName())
-                    .append("\n")
-                    .append("Pinfalls\t")
-                    .append(frameService.getThrowsFrom(player.getFrames())
-                            .stream()
-                            .map(playerThrow -> {
-                                if(playerThrow.getStrike()) {
-                                    return "\t".concat(Constants.STRIKE_CHARACTER);
-                                } else if (playerThrow.getSpare()) {
-                                    return Constants.SPARE_CHARACTER;
-                                } else if (playerThrow.getFault()) {
-                                    return Constants.FAULT_CHARACTER;
-                                }
-                                return playerThrow.getKnockedDownPins().toString();
-                            })
-                            .collect(Collectors.joining("\t"))
-                    ).append("\n")
-                    .append("Score\t\t")
-                    .append(player.getFrames()
-                            .stream()
-                            .map(frame -> frame.getScore().toString())
-                            .collect(Collectors.joining("\t\t"))
-                    ).append("\n");
-        });
-
-        System.out.println(stringBuilder.toString());
-    }
-
     private void registerPlayerThrowByFileLine(Game game, String fileLine) throws RuntimeException {
         String[] throwDetails = fileLine.split(Constants.FILE_LINE_ELEMENT_SPLITTER);
 

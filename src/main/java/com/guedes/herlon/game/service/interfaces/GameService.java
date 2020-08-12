@@ -7,5 +7,4 @@ public interface GameService {
     Game createGameUsing(String fileName);
     void calculateFinalResultOf(Game game);
     void calculateGameScore(Player player);
-    void printFormattedScoreOf(Game game);
 }

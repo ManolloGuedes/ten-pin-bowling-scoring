@@ -25,7 +25,7 @@ public class GameController implements CommandLineRunner {
             log.info(String.format("Reading %s file", args[0]));
             Game game = gameService.createGameUsing(args[0]);
             gameService.calculateFinalResultOf(game);
-            gameService.printFormattedScoreOf(game);
+            System.out.println(game.toString());
         } else {
             log.error("A file path was expected as input to the program's execution");
         }
