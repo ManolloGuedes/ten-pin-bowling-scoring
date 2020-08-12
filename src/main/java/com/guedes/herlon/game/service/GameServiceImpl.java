@@ -41,11 +41,9 @@ public class GameServiceImpl implements GameService {
 
         List<String> lines = FileUtils.getLinesFromFile(fileName);
 
-        final String[] playerName = {""};
-
         lines.forEach(line -> {
             try {
-                registerPlayerThrowByFileLine(game, playerName, line);
+                registerPlayerThrowByFileLine(game, line);
             } catch (Exception e) {
                 log.error("Error on createGameUsing execution. Error while reading file line from file " + fileName, e);
             }
@@ -102,23 +100,23 @@ public class GameServiceImpl implements GameService {
         System.out.println(stringBuilder.toString());
     }
 
-    private void registerPlayerThrowByFileLine(Game game, String[] playerName, String fileLine) throws RuntimeException {
+    private void registerPlayerThrowByFileLine(Game game, String fileLine) throws RuntimeException {
         String[] throwDetails = fileLine.split(Constants.FILE_LINE_ELEMENT_SPLITTER);
 
-        boolean needsToChangeCurrentPlayer = !playerName[0].equals(throwDetails[0]);
+        Player currentPlayer = referenceToCurrentPlayer.get();
+        boolean needsToChangeCurrentPlayer = currentPlayer == null || !currentPlayer.getName().equals(throwDetails[0]);
         if(needsToChangeCurrentPlayer) {
-            playerName[0] = throwDetails[0];
-            changeCurrentPlayer(game, playerName);
-            registerFrame(game, playerName, throwDetails);
+            changeCurrentPlayer(game, throwDetails[0]);
+            registerFrame(game, throwDetails[0]);
         }
 
         registerThrowOnCurrentFrame(throwDetails[1]);
     }
 
-    private void registerFrame(Game game, String[] playerName, String[] throwDetails) throws TooMuchFramesException {
+    private void registerFrame(Game game, String playerName) throws TooMuchFramesException {
         if(referenceToCurrentPlayer.get().getFrames().size() >= Constants.MAX_NUMBER_OF_FRAMES) {
             String errorMessage = String.format("Error on registerFrame execution. %s exceeded the maximum number of frames.",
-                    playerName[0]);
+                    playerName);
 
             log.error(errorMessage);
             throw new TooMuchFramesException(errorMessage);
@@ -127,17 +125,17 @@ public class GameServiceImpl implements GameService {
         refereceToCurrentFrame.set(new FrameImpl(new ArrayList<>(), (long) referenceToCurrentPlayer.get().getFrames().size()));
         referenceToCurrentPlayer.get().getFrames().add(refereceToCurrentFrame.get());
 
-        if(!game.hasPlayer(playerName[0])) {
+        if(!game.hasPlayer(playerName)) {
             game.getPlayers().add(referenceToCurrentPlayer.get());
         }
     }
 
-    private void changeCurrentPlayer(Game game, String[] playerName) {
+    private void changeCurrentPlayer(Game game, String playerName) {
         referenceToCurrentPlayer.set(game.getPlayers()
                 .stream()
-                .filter(currentPlayer -> currentPlayer.getName().equals(playerName[0]))
+                .filter(currentPlayer -> currentPlayer.getName().equals(playerName))
                 .findFirst()
-                .orElseGet(() -> new PlayerImpl(playerName[0], new ArrayList<>())));
+                .orElseGet(() -> new PlayerImpl(playerName, new ArrayList<>())));
     }
 
     private void registerThrowOnCurrentFrame(String throwResult) throws TooMuchThrowsException {
