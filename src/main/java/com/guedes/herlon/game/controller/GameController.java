@@ -1,5 +1,6 @@
 package com.guedes.herlon.game.controller;
 
+import com.guedes.herlon.game.exceptions.NoFileException;
 import com.guedes.herlon.game.model.interfaces.Game;
 import com.guedes.herlon.game.service.interfaces.GameService;
 import org.slf4j.Logger;
@@ -21,13 +22,17 @@ public class GameController implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if(args.length > 0) {
-            log.info(String.format("Reading %s file", args[0]));
-            Game game = gameService.createGameUsing(args[0]);
-            gameService.calculateFinalResultOf(game);
-            System.out.println(game.toString());
-        } else {
-            log.error("A file path was expected as input to the program's execution");
+        try {
+            if (args.length > 0) {
+                log.info(String.format("Reading %s file", args[0]));
+                Game game = gameService.createGameUsing(args[0]);
+                gameService.calculateFinalResultOf(game);
+                System.out.println(game.toString());
+            } else {
+                throw new NoFileException("A file path was expected as input to the program's execution");
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
         }
     }
 

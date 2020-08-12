@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -36,7 +37,7 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Game createGameUsing(String fileName) {
+    public Game createGameUsing(String fileName) throws IOException {
         Game game = new GameImpl(new ArrayList<>());
 
         List<String> lines = FileUtils.getLinesFromFile(fileName);
