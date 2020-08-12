@@ -3,8 +3,6 @@ package com.guedes.herlon.game.model;
 import com.guedes.herlon.game.general.Constants;
 import com.guedes.herlon.game.model.interfaces.Game;
 import com.guedes.herlon.game.model.interfaces.Player;
-import com.guedes.herlon.game.service.FrameServiceImpl;
-import com.guedes.herlon.game.service.interfaces.FrameService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -26,25 +24,27 @@ public class GameImpl implements Game {
     public String toString(){
         StringBuilder stringBuilder = new StringBuilder();
 
-        FrameService frameService = new FrameServiceImpl();
         this.getPlayers().forEach(player -> {
             stringBuilder
                     .append(player.getName())
                     .append("\n")
                     .append("Pinfalls\t")
-                    .append(frameService.getThrowsFrom(player.getFrames())
+                    .append(player.getFrames()
                             .stream()
-                            .map(playerThrow -> {
+                            .map(frame -> frame.getPlayerThrowList().stream().map(playerThrow -> {
                                 if(playerThrow.getStrike()) {
-                                    return "\t".concat(Constants.STRIKE_CHARACTER);
+                                    String suffix = "";
+                                    if (frame.getPlayerThrowList().size() != Constants.LAST_FRAME_MAX_NUMBER_THROWS) {
+                                        suffix = "\t";
+                                    }
+                                    return suffix.concat(Constants.STRIKE_CHARACTER);
                                 } else if (playerThrow.getSpare()) {
                                     return Constants.SPARE_CHARACTER;
                                 } else if (playerThrow.getFault()) {
                                     return Constants.FAULT_CHARACTER;
                                 }
                                 return playerThrow.getKnockedDownPins().toString();
-                            })
-                            .collect(Collectors.joining("\t"))
+                            }).collect(Collectors.joining("\t"))).collect(Collectors.joining("\t"))
                     ).append("\n")
                     .append("Score\t\t")
                     .append(player.getFrames()
