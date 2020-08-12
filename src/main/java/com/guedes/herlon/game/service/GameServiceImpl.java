@@ -26,16 +26,13 @@ import java.util.concurrent.atomic.AtomicReference;
 @Slf4j
 public class GameServiceImpl implements GameService {
 
-    private final AtomicReference<Frame> referenceToCurrentFrame;
-    private final AtomicReference<Player> referenceToCurrentPlayer;
-
-    public GameServiceImpl() {
-        referenceToCurrentFrame = new AtomicReference<>();
-        referenceToCurrentPlayer = new AtomicReference<>();
-    }
+    private AtomicReference<Frame> referenceToCurrentFrame;
+    private AtomicReference<Player> referenceToCurrentPlayer;
 
     @Override
     public Game createGameUsing(List<ThrowDetails> throwDetailsList) {
+        this.referenceToCurrentFrame = new AtomicReference<>();
+        this.referenceToCurrentPlayer = new AtomicReference<>();
         try {
             Game game = new GameImpl(new ArrayList<>());
 
@@ -81,9 +78,16 @@ public class GameServiceImpl implements GameService {
         Player currentPlayer = referenceToCurrentPlayer.get();
         Frame currentFrame = referenceToCurrentFrame.get();
         boolean needsToChangeCurrentPlayer = currentPlayer == null || !currentPlayer.getName().equals(throwDetails.getPlayerName());
-        boolean needsToChangeCurrentFrame = currentFrame == null || currentPlayer == null ||
-                                            (currentPlayer.getFrames().size() < Constants.MAX_NUMBER_OF_FRAMES &&
-                                            currentFrame.getPlayerThrowList().size() == Constants.NON_LAST_FRAME_MAX_NUMBER_THROWS);
+
+        boolean needsToChangeCurrentFrame = true;
+
+        if(currentFrame != null && currentPlayer != null) {
+            boolean currentFrameHasMaxNumberOfThrows = currentFrame.getPlayerThrowList().size() == Constants.NON_LAST_FRAME_MAX_NUMBER_THROWS;
+            boolean allPinsAreDown = currentFrame.getTotalKnockedDownPins() == Constants.MAX_NUMBER_OF_PINS;
+            boolean allFramesDone = currentPlayer.getFrames().size() == Constants.MAX_NUMBER_OF_FRAMES;
+
+            needsToChangeCurrentFrame = !allFramesDone && (currentFrameHasMaxNumberOfThrows || allPinsAreDown);
+        }
 
         return needsToChangeCurrentPlayer || needsToChangeCurrentFrame;
     }
