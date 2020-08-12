@@ -8,6 +8,7 @@ import com.guedes.herlon.game.general.utils.FileUtils;
 import com.guedes.herlon.game.model.FrameImpl;
 import com.guedes.herlon.game.model.GameImpl;
 import com.guedes.herlon.game.model.PlayerImpl;
+import com.guedes.herlon.game.model.ThrowDetails;
 import com.guedes.herlon.game.model.interfaces.Frame;
 import com.guedes.herlon.game.model.interfaces.Game;
 import com.guedes.herlon.game.model.interfaces.Player;
@@ -42,7 +43,8 @@ public class GameServiceImpl implements GameService {
 
         lines.forEach(line -> {
             try {
-                registerPlayerThrowByFileLine(game, line);
+                ThrowDetails throwDetails = ThrowDetails.recoverThrowDetailsFrom(line, Constants.FILE_LINE_ELEMENT_SPLITTER);
+                registerPlayerThrowInto(game, throwDetails);
             } catch (Exception e) {
                 log.error("Error on createGameUsing execution. Error while reading file line from file " + fileName, e);
             }
@@ -64,21 +66,20 @@ public class GameServiceImpl implements GameService {
         frameService.calculateFrameScore(playerFrames, playerFrames.size() - 1);
     }
 
-    private void registerPlayerThrowByFileLine(Game game, String fileLine) throws RuntimeException {
-        String[] throwDetails = fileLine.split(Constants.FILE_LINE_ELEMENT_SPLITTER);
+    private void registerPlayerThrowInto(Game game, ThrowDetails throwDetails) throws RuntimeException {
 
         Player currentPlayer = referenceToCurrentPlayer.get();
-        boolean needsToChangeCurrentPlayer = currentPlayer == null || !currentPlayer.getName().equals(throwDetails[0]);
+        boolean needsToChangeCurrentPlayer = currentPlayer == null || !currentPlayer.getName().equals(throwDetails.getPlayerName());
         if(needsToChangeCurrentPlayer) {
-            changeCurrentPlayer(game, throwDetails[0]);
-            registerFrame(throwDetails[0]);
+            changeCurrentPlayer(game, throwDetails.getPlayerName());
+            registerFrame(throwDetails.getPlayerName());
 
-            if(!game.hasPlayer(throwDetails[0])) {
+            if(!game.hasPlayer(throwDetails.getPlayerName())) {
                 game.getPlayers().add(referenceToCurrentPlayer.get());
             }
         }
 
-        registerThrowOnCurrentFrame(throwDetails[1]);
+        registerThrowOnCurrentFrame(throwDetails.getThrowResult());
     }
 
     private void registerFrame(String playerName) throws TooMuchFramesException {
