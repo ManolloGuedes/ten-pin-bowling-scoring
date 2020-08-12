@@ -1,5 +1,6 @@
 package com.guedes.herlon.game.service;
 
+import com.guedes.herlon.game.controller.GameController;
 import com.guedes.herlon.game.model.PlayerImpl;
 import com.guedes.herlon.game.model.interfaces.Frame;
 import com.guedes.herlon.game.model.interfaces.Game;
@@ -23,12 +24,15 @@ class GameServiceImplTest {
 
     @Autowired
     private GameService gameService;
+
+    @Autowired
+    private GameController gameController;
     private Game gameTest;
 
     @BeforeEach
     void init() throws IOException {
         Path filePath = Paths.get("src/test/resources/", "test.txt");
-        gameTest = gameService.createGameUsing(filePath.toString());
+        gameTest = gameService.createGameUsing(gameController.getThrowDetailsFrom(filePath.toString()));
     }
 
     @Test

@@ -37,21 +37,19 @@ public class GameServiceImpl implements GameService {
     }
 
     @Override
-    public Game createGameUsing(String fileName) throws IOException {
-        Game game = new GameImpl(new ArrayList<>());
+    public Game createGameUsing(List<ThrowDetails> throwDetailsList) {
+        try {
+            Game game = new GameImpl(new ArrayList<>());
 
-        List<String> lines = FileUtils.getLinesFromFile(fileName);
-
-        lines.forEach(line -> {
-            try {
-                ThrowDetails throwDetails = ThrowDetails.recoverThrowDetailsFrom(line, Constants.FILE_LINE_ELEMENT_SPLITTER);
+            throwDetailsList.forEach(throwDetails -> {
                 registerPlayerThrowInto(game, throwDetails);
-            } catch (Exception e) {
-                log.error("Error on createGameUsing execution. Error while reading file line from file " + fileName, e);
-            }
-        });
+            });
 
-        return game;
+            return game;
+        } catch (Exception e) {
+            log.error("Error on createGameUsing execution");
+            throw e;
+        }
     }
 
     @Override
