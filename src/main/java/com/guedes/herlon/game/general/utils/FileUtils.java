@@ -15,6 +15,7 @@ public class FileUtils {
         try(Stream<String> stream = Files.lines(Paths.get(fileName))) {
             lines = stream
                     .filter(line -> !line.isEmpty())
+                    .map(String::trim)
                     .collect(Collectors.toList());
         } catch (NoFileException e) {
             throw new NoFileException("Error on getLinesFromFile execution. The problem occurred trying to read " + fileName);
