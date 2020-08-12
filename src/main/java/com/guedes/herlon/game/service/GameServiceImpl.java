@@ -66,10 +66,8 @@ public class GameServiceImpl implements GameService {
     }
 
     private void registerPlayerThrowInto(Game game, ThrowDetails throwDetails) throws RuntimeException {
-
-        Player currentPlayer = referenceToCurrentPlayer.get();
-        boolean needsToChangeCurrentPlayer = currentPlayer == null || !currentPlayer.getName().equals(throwDetails.getPlayerName());
-        if(needsToChangeCurrentPlayer) {
+        boolean needsToChangeCurrentPlayerOrFrame = needsToChangeCurrentPlayerOrFrame(throwDetails);
+        if(needsToChangeCurrentPlayerOrFrame) {
             changeCurrentPlayer(game, throwDetails.getPlayerName());
             registerFrame(throwDetails.getPlayerName());
 
@@ -79,6 +77,17 @@ public class GameServiceImpl implements GameService {
         }
 
         registerThrowOnCurrentFrame(throwDetails.getThrowResult());
+    }
+
+    private boolean needsToChangeCurrentPlayerOrFrame(ThrowDetails throwDetails) {
+        Player currentPlayer = referenceToCurrentPlayer.get();
+        Frame currentFrame = referenceToCurrentFrame.get();
+        boolean needsToChangeCurrentPlayer = currentPlayer == null || !currentPlayer.getName().equals(throwDetails.getPlayerName());
+        boolean needsToChangeCurrentFrame = currentFrame == null || currentPlayer == null ||
+                                            (currentPlayer.getFrames().size() < Constants.MAX_NUMBER_OF_FRAMES &&
+                                            currentFrame.getPlayerThrowList().size() == Constants.NON_LAST_FRAME_MAX_NUMBER_THROWS);
+
+        return needsToChangeCurrentPlayer || needsToChangeCurrentFrame;
     }
 
     private void registerFrame(String playerName) throws TooMuchFramesException {
