@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ class GameServiceImplTest {
     private Game gameTest;
 
     @BeforeEach
-    void init(){
+    void init() throws IOException {
         Path filePath = Paths.get("src/test/resources/", "test.txt");
         gameTest = gameService.createGameUsing(filePath.toString());
     }

@@ -28,11 +28,11 @@ import java.util.concurrent.atomic.AtomicReference;
 @Slf4j
 public class GameServiceImpl implements GameService {
 
-    private final AtomicReference<Frame> refereceToCurrentFrame;
+    private final AtomicReference<Frame> referenceToCurrentFrame;
     private final AtomicReference<Player> referenceToCurrentPlayer;
 
     public GameServiceImpl() {
-        refereceToCurrentFrame = new AtomicReference<>();
+        referenceToCurrentFrame = new AtomicReference<>();
         referenceToCurrentPlayer = new AtomicReference<>();
     }
 
@@ -92,8 +92,8 @@ public class GameServiceImpl implements GameService {
             throw new TooMuchFramesException(errorMessage);
         }
 
-        refereceToCurrentFrame.set(new FrameImpl(new ArrayList<>(), (long) referenceToCurrentPlayer.get().getFrames().size()));
-        referenceToCurrentPlayer.get().getFrames().add(refereceToCurrentFrame.get());
+        referenceToCurrentFrame.set(new FrameImpl(new ArrayList<>(), (long) referenceToCurrentPlayer.get().getFrames().size()));
+        referenceToCurrentPlayer.get().getFrames().add(referenceToCurrentFrame.get());
     }
 
     private void changeCurrentPlayer(Game game, String playerName) {
@@ -105,7 +105,7 @@ public class GameServiceImpl implements GameService {
     }
 
     private void registerThrowOnCurrentFrame(String throwResult) throws TooMuchThrowsException {
-        List<PlayerThrow> playerThrows = refereceToCurrentFrame.get().getPlayerThrowList();
+        List<PlayerThrow> playerThrows = referenceToCurrentFrame.get().getPlayerThrowList();
         List<Frame> playerFrames = referenceToCurrentPlayer.get().getFrames();
         boolean canThrowInCurrentFrame = (playerFrames.size() < Constants.MAX_NUMBER_OF_FRAMES &&
                                         playerThrows.size() >= Constants.NON_LAST_FRAME_MAX_NUMBER_THROWS)
@@ -123,8 +123,8 @@ public class GameServiceImpl implements GameService {
             playerThrow = PlayerThrowFactory.createFaultInstance(Constants.FAULT_NUMBER_KNOCKED_DOWN_PINS);
         } else {
             long knockedDownPins = Long.parseLong(throwResult);
-            boolean strike = knockedDownPins == Constants.MAX_NUMBER_OF_PINS && refereceToCurrentFrame.get().getPlayerThrowList().isEmpty();
-            boolean spare = !strike && refereceToCurrentFrame.get().getTotalKnockedDownPins() + knockedDownPins == Constants.MAX_NUMBER_OF_PINS;
+            boolean strike = knockedDownPins == Constants.MAX_NUMBER_OF_PINS && referenceToCurrentFrame.get().getPlayerThrowList().isEmpty();
+            boolean spare = !strike && referenceToCurrentFrame.get().getTotalKnockedDownPins() + knockedDownPins == Constants.MAX_NUMBER_OF_PINS;
             playerThrow = PlayerThrowFactory.createCommonInstance(knockedDownPins, strike, spare);
         }
 
