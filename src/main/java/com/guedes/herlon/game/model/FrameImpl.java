@@ -34,4 +34,5 @@ public class FrameImpl implements Frame {
     public boolean isSpare() {
         return playerThrowList.stream().anyMatch(PlayerThrow::getSpare);
     }
+
 }
