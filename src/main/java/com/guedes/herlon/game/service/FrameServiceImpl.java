@@ -5,10 +5,12 @@ import com.guedes.herlon.game.model.interfaces.Frame;
 import com.guedes.herlon.game.model.interfaces.PlayerThrow;
 import com.guedes.herlon.game.service.interfaces.FrameService;
 import lombok.NonNull;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Service
 public class FrameServiceImpl implements FrameService {
     @Override
     public long calculateFrameScore(List<Frame> frames, int frameNumber) {
