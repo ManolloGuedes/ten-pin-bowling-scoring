@@ -8,6 +8,7 @@ import lombok.Data;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Data
 @AllArgsConstructor
@@ -24,6 +25,10 @@ public class GameImpl implements Game {
     public String toString(){
         StringBuilder stringBuilder = new StringBuilder();
 
+        stringBuilder.append("Frame");
+        IntStream.rangeClosed(1, 10)
+                .forEach(frameNumber -> stringBuilder.append("\t\t".concat(String.valueOf(frameNumber))));
+        stringBuilder.append("\n");
         this.getPlayers().forEach(player -> {
             stringBuilder
                     .append(player.getName())
