@@ -1,3 +1,8 @@
+### Installing dependencies
+This software was built using the Maven tool as a project manager. To install the necessary dependencies to run the software, run the following command:
+
+* mvn install
+
 ### Execution command
 The software expects to receive as input the absolute path of a file containing the game logs.
 Thus, the command for running the software is as follows:
