@@ -27,11 +27,15 @@ import java.util.concurrent.atomic.AtomicReference;
 @Slf4j
 public class GameServiceImpl implements GameService {
 
-    @Autowired
-    private FrameService frameService;
+    private final FrameService frameService;
 
     private AtomicReference<Frame> referenceToCurrentFrame;
     private AtomicReference<Player> referenceToCurrentPlayer;
+
+    @Autowired
+    public GameServiceImpl(FrameService frameService) {
+        this.frameService = frameService;
+    }
 
     /**
      * Goes through the list of ThrowDetails and create the game Players, Frames and PlayerThrow instances
