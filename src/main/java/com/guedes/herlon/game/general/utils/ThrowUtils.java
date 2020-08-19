@@ -25,15 +25,6 @@ public class ThrowUtils {
 		this.fileUtils = fileUtils;
 	}
 
-	public ThrowDetails recoverThrowDetailsFrom(String line, String splitter) {
-		String[] throwDetails = line.split(splitter);
-
-		if(throwDetails.length != 2) {
-			return new ThrowDetailsImpl();
-		}
-		return new ThrowDetailsImpl(throwDetails[0], throwDetails[1].toUpperCase());
-	}
-
 	public List<ThrowDetails> getThrowDetailsFrom(String file) throws IOException {
 		try {
 			Set<ConstraintViolation<ThrowDetails>> constraintViolations = new HashSet<>();
@@ -41,7 +32,7 @@ public class ThrowUtils {
 			List<ThrowDetails> throwDetailsList = new ArrayList<>();
 			List<String> lines = fileUtils.getLinesFromFile(file);
 			lines.forEach(line -> {
-				ThrowDetails throwDetails = recoverThrowDetailsFrom(line, Constants.FILE_LINE_ELEMENT_SPLITTER);
+				ThrowDetails throwDetails = recoverThrowDetailsFrom(line);
 				throwDetailsList.add(throwDetails);
 				constraintViolations.addAll(throwDetails.validate());
 			});
@@ -57,5 +48,14 @@ public class ThrowUtils {
 			log.error(errorMessage, e);
 			throw new NoFileException(errorMessage);
 		}
+	}
+
+	private ThrowDetails recoverThrowDetailsFrom(String line) {
+		String[] throwDetails = line.split(Constants.FILE_LINE_ELEMENT_SPLITTER);
+
+		if(throwDetails.length != 2) {
+			return new ThrowDetailsImpl();
+		}
+		return new ThrowDetailsImpl(throwDetails[0], throwDetails[1].toUpperCase());
 	}
 }
