@@ -28,10 +28,12 @@ public class GameController implements CommandLineRunner {
     private static final Logger log = org.slf4j.LoggerFactory.getLogger(GameController.class);
 
     private final GameService gameService;
+    private final FileUtils fileUtils;
 
     @Autowired
-    public GameController(GameService gameService) {
+    public GameController(GameService gameService, FileUtils fileUtils) {
         this.gameService = gameService;
+        this.fileUtils = fileUtils;
     }
 
     @Override
@@ -63,7 +65,7 @@ public class GameController implements CommandLineRunner {
             Set<ConstraintViolation<ThrowDetails>> constraintViolations = new HashSet<>();
 
             List<ThrowDetails> throwDetailsList = new ArrayList<>();
-            List<String> lines = FileUtils.getLinesFromFile(file);
+            List<String> lines = fileUtils.getLinesFromFile(file);
             lines.forEach(line -> {
                 ThrowDetails throwDetails = ThrowDetails.recoverThrowDetailsFrom(line, Constants.FILE_LINE_ELEMENT_SPLITTER);
                 throwDetailsList.add(throwDetails);
