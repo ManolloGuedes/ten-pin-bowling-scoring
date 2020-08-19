@@ -1,7 +1,9 @@
 package com.guedes.herlon.game.service;
 
 import com.guedes.herlon.game.controller.GameController;
+import com.guedes.herlon.game.general.utils.ThrowUtils;
 import com.guedes.herlon.game.model.PlayerImpl;
+import com.guedes.herlon.game.model.ThrowDetails;
 import com.guedes.herlon.game.model.interfaces.Frame;
 import com.guedes.herlon.game.model.interfaces.Game;
 import com.guedes.herlon.game.model.interfaces.PlayerThrow;
@@ -23,12 +25,12 @@ class GameServiceImplTest {
     private GameService gameService;
 
     @Autowired
-    private GameController gameController;
+    private ThrowUtils throwUtils;
     private Game gameTest;
 
     @SneakyThrows
     private void initUsingInputFile(String fileName) {
-        gameTest = gameService.createGameUsing(gameController.getThrowDetailsFrom(fileName));
+        gameTest = gameService.createGameUsing(throwUtils.getThrowDetailsFrom(fileName));
     }
 
     @Test

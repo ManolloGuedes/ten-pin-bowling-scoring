@@ -4,8 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -18,12 +23,10 @@ public class ThrowDetails {
     @Pattern(regexp = "X|F|/|[0-9]|10", message = "Throw result should be a positive value between 0 and 10 or a strike (X), spare (/) and fault (F)")
     private String throwResult;
 
-    public static ThrowDetails recoverThrowDetailsFrom(String line, String splitter) {
-        String[] throwDetails = line.split(splitter);
+    public Set<ConstraintViolation<ThrowDetails>>  validate() {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
 
-        if(throwDetails.length != 2) {
-            return new ThrowDetails();
-        }
-        return new ThrowDetails(throwDetails[0], throwDetails[1].toUpperCase());
+        return validator.validate(this);
     }
 }
