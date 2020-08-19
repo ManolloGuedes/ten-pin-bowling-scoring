@@ -16,6 +16,7 @@ import com.guedes.herlon.game.service.interfaces.FrameService;
 import com.guedes.herlon.game.service.interfaces.GameService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,6 +26,9 @@ import java.util.concurrent.atomic.AtomicReference;
 @Service
 @Slf4j
 public class GameServiceImpl implements GameService {
+
+    @Autowired
+    private FrameService frameService;
 
     private AtomicReference<Frame> referenceToCurrentFrame;
     private AtomicReference<Player> referenceToCurrentPlayer;
@@ -56,7 +60,6 @@ public class GameServiceImpl implements GameService {
     public void calculateGameScore(Player player) {
         List<Frame> playerFrames = player.getFrames();
 
-        FrameService frameService = new FrameServiceImpl();
         frameService.calculateFrameScore(playerFrames, playerFrames.size() - 1);
     }
 
