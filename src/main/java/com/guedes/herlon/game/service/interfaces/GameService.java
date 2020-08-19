@@ -1,6 +1,6 @@
 package com.guedes.herlon.game.service.interfaces;
 
-import com.guedes.herlon.game.model.ThrowDetails;
+import com.guedes.herlon.game.model.interfaces.ThrowDetails;
 import com.guedes.herlon.game.model.interfaces.Game;
 import com.guedes.herlon.game.model.interfaces.Player;
 

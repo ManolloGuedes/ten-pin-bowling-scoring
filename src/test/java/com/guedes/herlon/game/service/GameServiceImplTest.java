@@ -1,9 +1,7 @@
 package com.guedes.herlon.game.service;
 
-import com.guedes.herlon.game.controller.GameController;
 import com.guedes.herlon.game.general.utils.ThrowUtils;
 import com.guedes.herlon.game.model.PlayerImpl;
-import com.guedes.herlon.game.model.ThrowDetails;
 import com.guedes.herlon.game.model.interfaces.Frame;
 import com.guedes.herlon.game.model.interfaces.Game;
 import com.guedes.herlon.game.model.interfaces.PlayerThrow;

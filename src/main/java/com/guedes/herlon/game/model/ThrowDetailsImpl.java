@@ -1,5 +1,6 @@
 package com.guedes.herlon.game.model;
 
+import com.guedes.herlon.game.model.interfaces.ThrowDetails;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,7 +16,7 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ThrowDetails {
+public class ThrowDetailsImpl implements ThrowDetails {
     @NotEmpty(message = "Player name cannot be empty")
     private String playerName;
 
@@ -23,6 +24,7 @@ public class ThrowDetails {
     @Pattern(regexp = "X|F|/|[0-9]|10", message = "Throw result should be a positive value between 0 and 10 or a strike (X), spare (/) and fault (F)")
     private String throwResult;
 
+    @Override
     public Set<ConstraintViolation<ThrowDetails>>  validate() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();

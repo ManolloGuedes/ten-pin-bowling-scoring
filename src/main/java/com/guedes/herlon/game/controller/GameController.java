@@ -1,9 +1,8 @@
 package com.guedes.herlon.game.controller;
 
 import com.guedes.herlon.game.exceptions.NoFileException;
-import com.guedes.herlon.game.general.utils.FileUtils;
 import com.guedes.herlon.game.general.utils.ThrowUtils;
-import com.guedes.herlon.game.model.ThrowDetails;
+import com.guedes.herlon.game.model.interfaces.ThrowDetails;
 import com.guedes.herlon.game.model.interfaces.Game;
 import com.guedes.herlon.game.service.interfaces.GameService;
 import org.slf4j.Logger;

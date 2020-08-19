@@ -7,7 +7,7 @@ import com.guedes.herlon.game.general.factory.PlayerThrowFactory;
 import com.guedes.herlon.game.model.FrameImpl;
 import com.guedes.herlon.game.model.GameImpl;
 import com.guedes.herlon.game.model.PlayerImpl;
-import com.guedes.herlon.game.model.ThrowDetails;
+import com.guedes.herlon.game.model.interfaces.ThrowDetails;
 import com.guedes.herlon.game.model.interfaces.Frame;
 import com.guedes.herlon.game.model.interfaces.Game;
 import com.guedes.herlon.game.model.interfaces.Player;
