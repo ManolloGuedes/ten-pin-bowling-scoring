@@ -1,5 +1,10 @@
 package com.guedes.herlon.game.general;
 
+/**
+ * Abstract class to encapsulate some constants used on software execution.
+ * @author herlon-guedes
+ * @since 08/10/2020
+ */
 public abstract class Constants {
     public static final String FILE_LINE_ELEMENT_SPLITTER = "\t";
     public static final String SPARE_CHARACTER = "/";

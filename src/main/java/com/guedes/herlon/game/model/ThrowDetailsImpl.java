@@ -13,6 +13,11 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 import java.util.Set;
 
+/**
+ * Implementation of the ThrowDetails interface.
+ * @author herlon-guedes
+ * @since 08/11/2020
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

@@ -7,6 +7,11 @@ import com.guedes.herlon.game.model.interfaces.Player;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Interface involving actions on the game.
+ * @author herlon-guedes
+ * @since 08/11/2020
+ */
 public interface GameService {
     /**
      * Uses a list of ThrowDetails to create a game

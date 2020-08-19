@@ -23,6 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Implementation of business logic related to actions on the game.
+ * @author herlon-guedes
+ * @since 08/11/2020
+ */
 @Service
 @Slf4j
 public class GameServiceImpl implements GameService {
@@ -38,7 +43,7 @@ public class GameServiceImpl implements GameService {
     }
 
     /**
-     * Goes through the list of ThrowDetails and create the game Players, Frames and PlayerThrow instances
+     * Goes through the list of ThrowDetails and create the game Players, Frames and PlayerThrow instances.
      * @param throwDetailsList list of ThrowDetails instances
      * @return game instance
      */
@@ -61,7 +66,7 @@ public class GameServiceImpl implements GameService {
     }
 
     /**
-     * Goes through the list of Players and calculate its final result
+     * Goes through the list of Players and calculate its final result.
      * @param game instance of Game
      */
     @Override
@@ -124,7 +129,7 @@ public class GameServiceImpl implements GameService {
     }
 
     /**
-     * Register a new frame to current player into referenceToCurrentFrame
+     * Register a new frame to current player into referenceToCurrentFrame.
      * @param playerName frame player's name
      * @throws TooMuchFramesException when we try to insert more than Constants#MAX_NUMBER_OF_FRAMES into the game
      * @see Constants#MAX_NUMBER_OF_FRAMES

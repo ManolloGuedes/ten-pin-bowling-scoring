@@ -30,11 +30,19 @@ public class FrameImpl implements Frame {
                 .sum();
     }
 
+    /**
+     * Checks for a strike in the PlayerThrow list
+     * @return boolean
+     */
     @Override
     public boolean isStrike() {
         return playerThrowList.stream().anyMatch(PlayerThrow::getStrike);
     }
 
+    /**
+     * Checks for a spare in the PlayerThrow list
+     * @return boolean
+     */
     @Override
     public boolean isSpare() {
         return playerThrowList.stream().anyMatch(PlayerThrow::getSpare);

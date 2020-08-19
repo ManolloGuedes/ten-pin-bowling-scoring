@@ -5,6 +5,11 @@ import com.guedes.herlon.game.model.interfaces.PlayerThrow;
 
 import java.util.List;
 
+/**
+ * Interface involving actions on game frames.
+ * @author herlon-guedes
+ * @since 08/11/2020
+ */
 public interface FrameService {
     /**
      * Calculates the score for a specific frame defined by frameNumber

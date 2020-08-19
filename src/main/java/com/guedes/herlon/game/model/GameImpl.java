@@ -10,6 +10,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * Implementation of the Game interface.
+ * @author herlon-guedes
+ * @since 08/10/2020
+ */
 @Data
 @AllArgsConstructor
 public class GameImpl implements Game {

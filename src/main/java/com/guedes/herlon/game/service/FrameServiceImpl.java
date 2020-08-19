@@ -10,6 +10,11 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Implementation of business logic related to game frames.
+ * @author herlon-guedes
+ * @since 08/11/2020
+ */
 @Service
 public class FrameServiceImpl implements FrameService {
 
