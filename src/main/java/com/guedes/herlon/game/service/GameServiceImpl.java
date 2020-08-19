@@ -33,6 +33,11 @@ public class GameServiceImpl implements GameService {
     private AtomicReference<Frame> referenceToCurrentFrame;
     private AtomicReference<Player> referenceToCurrentPlayer;
 
+    /**
+     * Goes through the list of ThrowDetails and create the game Players, Frames and PlayerThrow instances
+     * @param throwDetailsList list of ThrowDetails instances
+     * @return game instance
+     */
     @Override
     public Game createGameUsing(List<ThrowDetails> throwDetailsList) {
         this.referenceToCurrentFrame = new AtomicReference<>();
@@ -51,11 +56,19 @@ public class GameServiceImpl implements GameService {
         }
     }
 
+    /**
+     * Goes through the list of Players and calculate its final result
+     * @param game instance of Game
+     */
     @Override
     public void calculateFinalResultOf(Game game) {
         game.getPlayers().forEach(this::calculateGameScore);
     }
 
+    /**
+     * Calculates the player's score by going through each frame and calculating its result.
+     * @param player instance of Player to calculates the score
+     */
     @Override
     public void calculateGameScore(Player player) {
         List<Frame> playerFrames = player.getFrames();
@@ -63,6 +76,11 @@ public class GameServiceImpl implements GameService {
         frameService.calculateFrameScore(playerFrames, playerFrames.size() - 1);
     }
 
+    /**
+     * Creates a player's throw using throwDetails and insert it into the game.
+     * @param game instance of Game
+     * @param throwDetails instance of ThrowDetails
+     */
     private void registerPlayerThrowInto(Game game, ThrowDetails throwDetails) throws RuntimeException {
         boolean needsToChangeCurrentPlayerOrFrame = needsToChangeCurrentPlayerOrFrame(throwDetails);
         if(needsToChangeCurrentPlayerOrFrame) {
@@ -77,6 +95,12 @@ public class GameServiceImpl implements GameService {
         registerThrowOnCurrentFrame(throwDetails.getThrowResult());
     }
 
+    /**
+     * Checks if it is necessary to change the current player and frame by analyzing the number of throws in the frame
+     * and if the throwDetails#playerName is the current player.
+     * @param throwDetails instance of ThrowDetails
+     * @return boolean
+     */
     private boolean needsToChangeCurrentPlayerOrFrame(ThrowDetails throwDetails) {
         Player currentPlayer = referenceToCurrentPlayer.get();
         Frame currentFrame = referenceToCurrentFrame.get();
@@ -95,6 +119,12 @@ public class GameServiceImpl implements GameService {
         return needsToChangeCurrentPlayer || needsToChangeCurrentFrame;
     }
 
+    /**
+     * Register a new frame to current player into referenceToCurrentFrame
+     * @param playerName frame player's name
+     * @throws TooMuchFramesException when we try to insert more than Constants#MAX_NUMBER_OF_FRAMES into the game
+     * @see Constants#MAX_NUMBER_OF_FRAMES
+     */
     private void registerFrame(String playerName) throws TooMuchFramesException {
         if(referenceToCurrentPlayer.get().getFrames().size() >= Constants.MAX_NUMBER_OF_FRAMES) {
             String errorMessage = String.format("Error on registerFrame execution. %s exceeded the maximum number of frames.",
@@ -108,6 +138,12 @@ public class GameServiceImpl implements GameService {
         referenceToCurrentPlayer.get().getFrames().add(referenceToCurrentFrame.get());
     }
 
+    /**
+     * Changes the reference in referenceToCurrentPlayer to the player whose name is defined by playerName.
+     * If there is no player using this name, a new Player instance will be created.
+     * @param game instance of Game
+     * @param playerName player's name
+     */
     private void changeCurrentPlayer(Game game, String playerName) {
         referenceToCurrentPlayer.set(game.getPlayers()
                 .stream()
@@ -116,6 +152,12 @@ public class GameServiceImpl implements GameService {
                 .orElseGet(() -> new PlayerImpl(playerName, new ArrayList<>())));
     }
 
+    /**
+     * Create a new Throw using the result in throwResult and register it in the referenceToCurrentFrame.
+     * @param throwResult throw result
+     * @throws TooMuchThrowsException when we try to insert more than Constants#MAX_NUMBER_OF_PINS into the frame
+     * @see Constants#MAX_NUMBER_OF_PINS
+     */
     private void registerThrowOnCurrentFrame(String throwResult) throws TooMuchThrowsException {
         List<PlayerThrow> playerThrows = referenceToCurrentFrame.get().getPlayerThrowList();
         List<Frame> playerFrames = referenceToCurrentPlayer.get().getFrames();
@@ -139,6 +181,14 @@ public class GameServiceImpl implements GameService {
         playerThrows.add(playerThrow);
     }
 
+    /**
+     * Checks if it's possible to create a new PlayerThrow.
+     * If the limit of throws and the sum of knocked down pins in actual frame have not been exceeded, we can create a new PlayerThrow.
+     * @param playerThrows list of PlayerThrow instances
+     * @param playerFrames list of Frame instances
+     * @param throwResult result of the Throw that we are trying to create
+     * @throws TooMuchThrowsException occurs when validation fails
+     */
     private void validIfCanCreateThrow(List<PlayerThrow> playerThrows, List<Frame> playerFrames, String throwResult) throws TooMuchThrowsException {
         boolean canThrowInCurrentFrame = !((playerFrames.size() < Constants.MAX_NUMBER_OF_FRAMES &&
                                         playerThrows.size() >= Constants.NON_LAST_FRAME_MAX_NUMBER_THROWS)

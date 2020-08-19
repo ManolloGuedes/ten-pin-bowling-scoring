@@ -8,6 +8,11 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
+/**
+ * Implementation of the Frame interface.
+ * @author herlon-guedes
+ * @since 08/10/2020
+ */
 @Data
 @RequiredArgsConstructor
 public class FrameImpl implements Frame {

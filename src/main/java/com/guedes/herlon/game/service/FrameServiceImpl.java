@@ -12,6 +12,15 @@ import java.util.stream.Collectors;
 
 @Service
 public class FrameServiceImpl implements FrameService {
+
+    /**
+     * Calculates the score for a specific frame defined by frameNumber.
+     * The logic to calculate the score is:
+     * accumulated score from the previous frame + sum of the knocked down pins in the current frame + strike or spare frame bonus
+     * @param frames list of frame instances
+     * @param frameNumber frame number that should have its score calculated
+     * @return frame score
+     */
     @Override
     public long calculateFrameScore(List<Frame> frames, int frameNumber) {
         long frameScore = 0;
@@ -24,6 +33,13 @@ public class FrameServiceImpl implements FrameService {
         return frameScore;
     }
 
+    /**
+     * Verify if the frame is a strike or a spare and gets the frame bonus using an specific number of next throws.
+     * The number of next throws to be considered is defined by the BonusRule Enum.
+     * @param frames list of game frame instances
+     * @param frameNumber frame number you want to know the bonus value
+     * @return bonus value
+     */
     private long calculateFrameBonus(List<Frame> frames, int frameNumber) {
         long bonus = 0L;
         if (frames.get(frameNumber).isStrike()) {
@@ -34,6 +50,13 @@ public class FrameServiceImpl implements FrameService {
         return bonus;
     }
 
+    /**
+     * Uses a rule defined by the BonusRule Enum and calculates the bonus of an specific frame in the list of game frame instances.
+     * @param rule BonusRule
+     * @param frames list of game frame instances
+     * @param frameNumber frame number you want to know the bonus value
+     * @return bonus value
+     */
     private long calculateBonusUsing(BonusRule rule, List<Frame> frames, int frameNumber) {
         Long bonusValue = 0L;
 

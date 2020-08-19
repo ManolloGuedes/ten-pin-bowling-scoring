@@ -6,6 +6,7 @@ import com.guedes.herlon.game.general.Constants;
 import com.guedes.herlon.game.model.interfaces.ThrowDetails;
 import com.guedes.herlon.game.model.ThrowDetailsImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.validation.ConstraintViolation;
@@ -15,16 +16,28 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Utils class to work with Throw records.
+ * @author herlon-guedes
+ * @since 08/19/2020
+ */
 @Slf4j
 @Service
 public class ThrowUtils {
 
 	private final FileUtils fileUtils;
 
+	@Autowired
 	public ThrowUtils(FileUtils fileUtils) {
 		this.fileUtils = fileUtils;
 	}
 
+	/**
+	 * Uses the file param to create a list of ThrowDetails instances.
+	 * @param file absolute path to the file containing the details of the throws
+	 * @return List of ThrowDetails instances
+	 * @throws IOException when occurs a problem while opening the file
+	 */
 	public List<ThrowDetails> getThrowDetailsFrom(String file) throws IOException {
 		try {
 			Set<ConstraintViolation<ThrowDetails>> constraintViolations = new HashSet<>();
@@ -50,6 +63,12 @@ public class ThrowUtils {
 		}
 	}
 
+	/**
+	 * Splits a line using the Constants.FILE_LINE_ELEMENT_SPLITTER and creates a ThrowDetails instance using the split result.
+	 * @see Constants#FILE_LINE_ELEMENT_SPLITTER
+	 * @param line string containing the details of a throw
+	 * @return instance of ThrowDetails
+	 */
 	private ThrowDetails recoverThrowDetailsFrom(String line) {
 		String[] throwDetails = line.split(Constants.FILE_LINE_ELEMENT_SPLITTER);
 

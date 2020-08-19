@@ -21,6 +21,14 @@ public class GameImpl implements Game {
                     .anyMatch(player -> player.getName().equals(name));
     }
 
+    /**
+     * Returns a string formatted as the following example:
+     * Frame        1       2       3       4       5       6       7       8       9       10
+     * Player1
+     * Pinfalls         X   7   /   9   0       X   0   8   8   /   F   6       X       X   X   8   1
+     * Score        20      39      48      66      74      84      90      120     148     167
+     * @return
+     */
     @Override
     public String toString(){
         StringBuilder stringBuilder = new StringBuilder();
